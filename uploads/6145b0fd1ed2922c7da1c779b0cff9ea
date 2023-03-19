@@ -1,6 +1,0 @@
-id,firstName,lastName,email,mobileNumber,organization,jobTitle,city,age,bio
-6,Sarah,Sarah,sarah.d@abec.asia,9993141997,Warpbay,Dev,Mumbai,33,We are testing the CSV upload feature
-7,Anita,Anita,anita.gupta@ieema.org,9993141997,Warpbay,Dev,Mumbai,34,We are testing the CSV upload feature
-8,Shalini,Shalini,shalini.singh@ieema.org,9993141997,Warpbay,Dev,Mumbai,35,We are testing the CSV upload feature
-9,Vivek,Vivek,vivekgoel_cea@hotmail.com,9993141997,Warpbay,Dev,Mumbai,36,We are testing the CSV upload feature
-10,Sudeep,Sudeep,delhi@ieema.org,9993141997,Warpbay,Dev,Mumbai,37,We are testing the CSV upload feature
