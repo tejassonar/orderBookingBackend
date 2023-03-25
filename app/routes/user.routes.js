@@ -4,14 +4,20 @@ import express from "express";
 //   addAllItems,
 //   searchItem,
 // } from "../controllers/items.controller.js";
+import {
+  createUser,
+  loginUser,
+  registerUser,
+} from "../controllers/user.controller.js";
 // import multer from "multer";
 
 const router = express.Router();
 // const upload = multer({ dest: "uploads/" });
 
-router.get("/", getItems);
-router.get("/search", searchItem);
-router.post("/bulk", upload.single("bulkItems"), addAllItems);
+// router.get("/", getItems);
+router.post("/", createUser);
+router.post("/login", loginUser);
+router.post("/register", registerUser);
 // router.post();
 
 export default router;

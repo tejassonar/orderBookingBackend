@@ -15,7 +15,7 @@ const partySchema = mongoose.Schema(
     PHONE: String,
     FOOD_LIC: String,
     MST_NO: String,
-    APN_NO: String,
+    PAN_NO: String,
     CST_NO: String,
     BANK_NM: String,
     CLOSEDAY: Number,
@@ -34,7 +34,7 @@ const partySchema = mongoose.Schema(
   }
 );
 
-partySchema.index({ LORY_CD: "text", LORY_NO: "text" });
+partySchema.index({ PARTY_NM: "text", PLACE: "text" });
 
 var Party = mongoose.model("Party", partySchema);
 

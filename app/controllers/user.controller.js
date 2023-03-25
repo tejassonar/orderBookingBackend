@@ -1,12 +1,12 @@
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcryptjs");
-const asyncHandler = require("express-async-handler");
-const User = require("../models/user.model");
+import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+import asyncHandler from "express-async-handler";
+import User from "../models/user.model.js";
 
 // @desc    Register new user
 // @route   POST /api/users
 // @access  Public
-const registerUser = asyncHandler(async (req, res) => {
+export const registerUser = asyncHandler(async (req, res) => {
   // const { name, email, password } = req.body;
 
   // if (!name || !email || !password) {
@@ -17,14 +17,14 @@ const registerUser = asyncHandler(async (req, res) => {
   // Check if user exists
   const user = await User.findOne({ EMAIL: req.body.email });
 
-  // if (userExists) {
-  //   res.status(400);
-  //   throw new Error("");
-  // }
+  if (user.PASSWORD) {
+    res.status(400);
+    throw new Error("The user is already registered");
+  }
 
   // Hash password
   const salt = await bcrypt.genSalt(10);
-  user.password = await bcrypt.hash(req.body.password, salt);
+  user.PASSWORD = await bcrypt.hash(req.body.password, salt);
 
   delete req.body.password;
 
@@ -55,16 +55,31 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Create a user
+// @route   POST /api/users/create
+// @access  Public
+export const createUser = asyncHandler(async (req, res) => {
+  const user = new User(req.body);
+  const errors = user.validateSync();
+  if (errors) {
+    console.log(errors, "errors");
+    throw new Error("Invalid user data");
+  }
+  user.save();
+  res.json(user);
+});
+
 // @desc    Authenticate a user
 // @route   POST /api/users/login
 // @access  Public
-const loginUser = asyncHandler(async (req, res) => {
+export const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   // Check for user email
   const user = await User.findOne({ EMAIL: email });
+  console.log(password, user.PASSWORD, "email, password");
 
-  if (user && (await bcrypt.compare(password, user.password))) {
+  if (user && (await bcrypt.compare(password, user.PASSWORD))) {
     res.json({
       _id: user.id,
       firstName: user.FIRST_NAME,
@@ -81,7 +96,7 @@ const loginUser = asyncHandler(async (req, res) => {
 // @desc    Get user data
 // @route   GET /api/users/me
 // @access  Private
-const getMe = asyncHandler(async (req, res) => {
+export const getMe = asyncHandler(async (req, res) => {
   res.status(200).json(req.user);
 });
 
@@ -90,10 +105,4 @@ const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: "30d",
   });
-};
-
-module.exports = {
-  registerUser,
-  loginUser,
-  getMe,
 };
