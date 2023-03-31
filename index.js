@@ -3,6 +3,7 @@ import express from "express";
 import itemRoutes from "./app/routes/items.routes.js";
 import userRoutes from "./app/routes/user.routes.js";
 import partyRoutes from "./app/routes/party.routes.js";
+import orderRoutes from "./app/routes/order.routes.js";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import { notFound, errorHandler } from "./app/middleware/errorHandler.js";
@@ -33,6 +34,7 @@ app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use("/api/items", itemRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/parties", partyRoutes);
+app.use("/api/orders", orderRoutes);
 app.get("/", (req, res) => {
   res.json({
     message: "Welcome to the Order Booking app!",

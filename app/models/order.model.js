@@ -4,9 +4,11 @@ const orderSchema = mongoose.Schema(
   {
     USER_ID: String,
     ORD_DT: Date,
-    ORD_NO: Number,
+    ORD_NO: String,
     PARTY_CD: String,
-    ITEM_CD: String,
+    PARTY_NM: String,
+    LORY_CD: String,
+    LORY_NO: String,
     QTY: Number,
     RATE: Number,
     BRAND_CD: String,
