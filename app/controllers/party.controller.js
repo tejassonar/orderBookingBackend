@@ -8,12 +8,12 @@ const router = express.Router();
 export const getParties = async (req, res) => {
   try {
     const allParties = await Party.find().limit(100);
-
     res.status(200).json(allParties);
   } catch (error) {
     res.status(404).json({ message: error.message });
   }
 };
+
 export const searchParty = async (req, res) => {
   try {
     const searchedParties = await Party.find({

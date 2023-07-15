@@ -44,6 +44,10 @@ export const getOrdersCSV = async (req, res) => {
       ),
     ].join("\r\n");
 
-    console.log(csv, "++++");
-  } catch (err) {}
+    res.header("Content-Type", "text/csv");
+    res.attachment("order.csv");
+    return res.send(csv);
+  } catch (err) {
+    console.log(err, "Error==");
+  }
 };
