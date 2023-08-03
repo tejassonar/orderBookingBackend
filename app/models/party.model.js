@@ -13,7 +13,7 @@ const partySchema = mongoose.Schema(
     AREA: String,
     STATE: String,
     PHONE: String,
-    FOOD_LIC: String,
+    // FOOD_LIC: String,
     MST_NO: String,
     PAN_NO: String,
     CST_NO: String,
@@ -23,18 +23,21 @@ const partySchema = mongoose.Schema(
     YOB: Decimal128,
     YOB1: Decimal128,
     Y_CL: Decimal128,
-    DUEDAY: Number,
+    DUE_DAY: Number,
     KM: Number,
     CR_LIMIT: Number,
-    COMPANY_CODE: { type: String, index: true },
-    CLIENT_CODE: { type: String, index: true },
+    COMPANY_CODE: { type: String },
+    CLIENT_CODE: { type: String },
   },
   {
     timestamps: true,
   }
 );
 
-partySchema.index({ PARTY_NM: "text", PLACE: "text" });
+// partySchema.index({ PARTY_NM: "text", PLACE: "text" });
+partySchema.index({ PARTY_NM: "text" });
+partySchema.index({ PLACE: "text" });
+partySchema.index({ CLIENT_CODE: 1, COMPANY_CODE: 1 });
 
 var Party = mongoose.model("Party", partySchema);
 

@@ -3,15 +3,18 @@ import {
   getItems,
   addAllItems,
   searchItem,
+  checkItemQuantity,
 } from "../controllers/items.controller.js";
 import multer from "multer";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 const upload = multer({ dest: "uploads/" });
 
-router.get("/", getItems);
-router.get("/search", searchItem);
+router.get("/", protect, getItems);
+router.get("/search", protect, searchItem);
 router.post("/bulk", upload.single("bulkItems"), addAllItems);
+router.get("/:itemId", checkItemQuantity);
 // router.post();
 
 export default router;

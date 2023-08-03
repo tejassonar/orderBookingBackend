@@ -2,12 +2,16 @@ import express from "express";
 import mongoose from "mongoose";
 import Party from "../models/party.model.js";
 import csv from "csvtojson";
-
+import fs from "fs";
+import { parse } from "csv-parse";
 const router = express.Router();
 
 export const getParties = async (req, res) => {
   try {
-    const allParties = await Party.find().limit(100);
+    const allParties = await Party.find({
+      COMPANY_CODE: req.user.COMPANY_CODE,
+      CLIENT_CODE: req.user.CLIENT_CODE,
+    }).limit(100);
     res.status(200).json(allParties);
   } catch (error) {
     res.status(404).json({ message: error.message });
@@ -17,6 +21,8 @@ export const getParties = async (req, res) => {
 export const searchParty = async (req, res) => {
   try {
     const searchedParties = await Party.find({
+      COMPANY_CODE: req.user.COMPANY_CODE,
+      CLIENT_CODE: req.user.CLIENT_CODE,
       $or: [
         {
           PARTY_NM: {
@@ -43,31 +49,109 @@ export const searchParty = async (req, res) => {
 };
 export const addAllParties = async (req, res) => {
   try {
-    const allParties = await Party.deleteMany({});
-
-    const jsonArray = await csv({
+    // Read the data from the CSV file and store it in an array of objects
+    // const csvFilePath = process.cwd() + `/${req.file?.path}`;
+    // const csvData = [];
+    // fs.createReadStream(csvFilePath)
+    //   .pipe(parse({ delimiter: "," }))
+    //   .on("data", (csvRow) => {
+    //     // Assuming the CSV has columns corresponding to the Party fields
+    //     const [PARTY_CD, PARTY_NM, ADD1, ADD2 /* and so on */] = csvRow;
+    //     csvData.push({
+    //       PARTY_CD,
+    //       PARTY_NM,
+    //       ADD1,
+    //       ADD2,
+    //       /* and so on */
+    //     });
+    //   })
+    //   .on("end", async () => {
+    const csvData = await csv({
       colParser: {
         id: { cellParser: "number" },
         age: { cellParser: "number" },
       },
     }).fromFile(process.cwd() + `/${req.file?.path}`);
 
-    // console.log(jsonArray, "jsonArray");
-
-    const parties = await Party.insertMany(
-      jsonArray
-      //     , (err, docs) => {
-      //   if (err) {
-      //     console.log(err);
-      //   } else {
-      //     console.log(docs, "==Docs==");
-      //     res.status(200).json(jsonArray);
-      //   }
-      // }
+    // Fetch the existing data from the 'Party' collection
+    const existingPartyData = await Party.find(
+      {},
+      // { COMPANY_CODE: csvData[0].COMPANY_CODE },           //IMPORTANT for retrieving parties with company code to update/add only specific company data
+      { _id: 0, PARTY_CD: 1 }
     );
-    res.status(200).json(jsonArray);
 
-    console.log(parties, "Parties");
+    // Determine which documents need to be updated and which ones need to be inserted
+    const documentsToUpdate = [];
+    const documentsToInsert = [];
+    for (const csvDocument of csvData) {
+      const existingDocument = existingPartyData.find(
+        (existingDoc) => existingDoc.PARTY_CD === csvDocument.PARTY_CD
+      );
+
+      if (existingDocument) {
+        // Document with the same PARTY_CD already exists, so it needs an update
+        documentsToUpdate.push(csvDocument);
+      } else {
+        // Document with the given PARTY_CD doesn't exist, so it needs to be inserted
+        documentsToInsert.push(csvDocument);
+      }
+    }
+
+    // Perform bulk update and insert operations
+    const bulkOps = [];
+
+    // Push update operations to bulkOps
+    documentsToUpdate.forEach((doc) => {
+      bulkOps.push({
+        updateOne: {
+          filter: { PARTY_CD: doc.PARTY_CD },
+          update: doc,
+        },
+      });
+    });
+
+    // Push insert operations to bulkOps
+    bulkOps.push(
+      ...documentsToInsert.map((doc) => ({
+        insertOne: {
+          document: doc,
+        },
+      }))
+    );
+
+    // Execute the bulkWrite operation
+    const result = await Party.bulkWrite(bulkOps);
+    console.log(`${result.modifiedCount} documents updated.`);
+    console.log(`${result.insertedCount} documents inserted.`);
+    res.status(200).json(result);
+
+    // });
+
+    // const allParties = await Party.deleteMany({});
+
+    // const jsonArray = await csv({
+    //   colParser: {
+    //     id: { cellParser: "number" },
+    //     age: { cellParser: "number" },
+    //   },
+    // }).fromFile(process.cwd() + `/${req.file?.path}`);
+
+    // // console.log(jsonArray, "jsonArray");
+
+    // const parties = await Party.insertMany(
+    //   jsonArray
+    //   //     , (err, docs) => {
+    //   //   if (err) {
+    //   //     console.log(err);
+    //   //   } else {
+    //   //     console.log(docs, "==Docs==");
+    //   //     res.status(200).json(jsonArray);
+    //   //   }
+    //   // }
+    // );
+    // res.status(200).json(jsonArray);
+
+    // console.log(parties, "Parties");
   } catch (error) {
     res.status(404).json({ message: error.message });
   }

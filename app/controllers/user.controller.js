@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import asyncHandler from "express-async-handler";
 import User from "../models/user.model.js";
+import { log } from "console";
 
 // @desc    Register new user
 // @route   POST /api/users
@@ -91,6 +92,33 @@ export const loginUser = asyncHandler(async (req, res) => {
     res.status(400);
     throw new Error("Invalid credentials");
   }
+});
+
+// @desc    Update user data
+// @route   PUT /api/users/
+// @access  Public
+export const updateUser = asyncHandler(async (req, res) => {
+  console.log(req.user, "req.user");
+  // Check for user email
+  const user = await User.findById(req.user._id).select("-PASSWORD");
+  // console.log(password, user.PASSWORD, "email, password");
+
+  await Object.assign(user, req.body);
+  const err = user.validateSync();
+  if (err) {
+    throw new Error(err);
+  } else {
+    await user.save();
+    res.json({
+      _id: user._id,
+      firstName: user.FIRST_NAME,
+      lastName: user.LAST_NAME,
+      email: user.EMAIL,
+      companyCode: user.COMPANY_CODE,
+      clientCode: user.CLIENT_CODE,
+    });
+  }
+  console.log(user, "Userrr");
 });
 
 // @desc    Get user data
