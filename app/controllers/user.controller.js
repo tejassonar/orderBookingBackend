@@ -77,14 +77,14 @@ export const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   // Check for user email
-  const user = await User.findOne({ EMAIL: email });
+  const user = await User.findOne({ EMAIL: email }).select(
+    "-createdAt -updatedAt -__v"
+  );
 
   if (user && (await bcrypt.compare(password, user.PASSWORD))) {
+    delete user._doc.PASSWORD;
     res.json({
-      _id: user.id,
-      firstName: user.FIRST_NAME,
-      lastName: user.LAST_NAME,
-      email: user.EMAIL,
+      ...user._doc,
       token: generateToken(user._id),
     });
   } else {
