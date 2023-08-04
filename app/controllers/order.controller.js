@@ -11,6 +11,11 @@ export const getOrders = async (req, res) => {
   try {
     const allOrders = await Order.aggregate([
       {
+        $match: {
+          AGENT_ID: req.user.AGENT_ID,
+        },
+      },
+      {
         $group: {
           _id: "$ORD_NO",
           USER_ID: { $first: "$USER_ID" },
@@ -42,44 +47,39 @@ export const getOrders = async (req, res) => {
         },
       },
     ]);
-
     res.status(200).json(allOrders);
   } catch (error) {
+    console.log(error, "Errrror");
     res.status(400).json({ message: error.message });
   }
 };
 
 export const createOrder = async (req, res) => {
-  try {
-    req.body.orders.forEach(async (order) => {
-      const item = await Item.findOne({ LORY_CD: order.LORY_CD });
-      if (item && item.BALQTY >= Number(order.QTY)) {
-        item.BALQTY = item.BALQTY - Number(order.QTY);
-        console.log(item, "Item");
-        await item.save();
-      } else {
-        res.status(400);
-        throw new Error("Something Went Wrong!!");
-      }
-    });
-    console.log(req.body.orders, "req.body.orders");
-    const order = await Order.insertMany(req.body.orders);
-    res.status(200).json(order);
-    // res.status(200).json({ res: "success" });
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
+  // try {
+  req.body.orders.forEach(async (order) => {
+    const item = await Item.findOne({ LORY_CD: order.LORY_CD });
+    if (item && item.BALQTY >= Number(order.QTY)) {
+      item.BALQTY = item.BALQTY - Number(order.QTY);
+      await item.save();
+    } else {
+      res.status(400);
+      throw new Error("Something Went Wrong!!");
+    }
+  });
+  const order = await Order.insertMany(req.body.orders);
+  res.status(200).json(order);
+  // res.status(200).json({ res: "success" });
+  // } catch (err) {
+  //   res.status(400).json({ message: err.message });
+  // }
 };
 
 export const getOrdersCSV = async (req, res) => {
   try {
     const allOrders = await Order.find();
-    console.log(allOrders, "allOrders");
     const items = JSON.parse(JSON.stringify(allOrders));
-    console.log(items, "items");
     const replacer = (key, value) => (value === null ? "" : value); // specify how you want to handle null values here
     const header = Object.keys(items[0]);
-    console.log(header, "Headerrr");
     const csv = [
       header.join(","), // header row first
       ...items.map((row) =>

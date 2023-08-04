@@ -121,8 +121,6 @@ export const addAllParties = async (req, res) => {
 
     // Execute the bulkWrite operation
     const result = await Party.bulkWrite(bulkOps);
-    console.log(`${result.modifiedCount} documents updated.`);
-    console.log(`${result.insertedCount} documents inserted.`);
     res.status(200).json(result);
 
     // });

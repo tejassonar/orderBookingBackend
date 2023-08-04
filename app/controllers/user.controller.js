@@ -78,7 +78,6 @@ export const loginUser = asyncHandler(async (req, res) => {
 
   // Check for user email
   const user = await User.findOne({ EMAIL: email });
-  console.log(password, user.PASSWORD, "email, password");
 
   if (user && (await bcrypt.compare(password, user.PASSWORD))) {
     res.json({
@@ -98,7 +97,6 @@ export const loginUser = asyncHandler(async (req, res) => {
 // @route   PUT /api/users/
 // @access  Public
 export const updateUser = asyncHandler(async (req, res) => {
-  console.log(req.user, "req.user");
   // Check for user email
   const user = await User.findById(req.user._id).select("-PASSWORD");
   // console.log(password, user.PASSWORD, "email, password");
@@ -118,7 +116,6 @@ export const updateUser = asyncHandler(async (req, res) => {
       clientCode: user.CLIENT_CODE,
     });
   }
-  console.log(user, "Userrr");
 });
 
 // @desc    Get user data

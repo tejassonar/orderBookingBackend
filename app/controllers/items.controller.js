@@ -12,7 +12,6 @@ export const getItems = async (req, res) => {
       CLIENT_CODE: req.user.CLIENT_CODE,
     });
 
-    console.log(allItems.length, "allItems.length");
     res.status(200).json(allItems);
   } catch (error) {
     res.status(404).json({ message: error.message });
@@ -20,7 +19,6 @@ export const getItems = async (req, res) => {
 };
 export const searchItem = async (req, res) => {
   try {
-    console.log(req.query.name, "req.query.name");
     const searchedItems = await Item.find({
       COMPANY_CODE: req.user.COMPANY_CODE,
       CLIENT_CODE: req.user.CLIENT_CODE,
@@ -106,8 +104,6 @@ export const addAllItems = async (req, res) => {
 
     // Execute the bulkWrite operation
     const result = await Item.bulkWrite(bulkOps);
-    console.log(`${result.modifiedCount} documents updated.`);
-    console.log(`${result.insertedCount} documents inserted.`);
     res.status(200).json(result);
   } catch (error) {
     res.status(404).json({ message: error.message });
@@ -116,9 +112,7 @@ export const addAllItems = async (req, res) => {
 
 export const checkItemQuantity = async (req, res) => {
   try {
-    // console.log(req, "Req");
     const item = await Item.findOne({ LORY_CD: req.params.itemId });
-    console.log(item);
     if (item.BALQTY || item.BALQTY == 0) {
       res.json({
         balanceQuantity: item.BALQTY,

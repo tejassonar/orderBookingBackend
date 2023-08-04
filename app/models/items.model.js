@@ -17,15 +17,18 @@ const itemSchema = mongoose.Schema(
     },
     BALQTY: Number,
     PKG: Number,
-    COMPANY_CODE: { type: String, index: true },
-    CLIENT_CODE: { type: String, index: true },
+    COMPANY_CODE: String,
+    CLIENT_CODE: String,
   },
   {
     timestamps: true,
   }
 );
 
-itemSchema.index({ LORY_CD: "text", LORY_NO: "text" });
+// itemSchema.index({ LORY_CD: "text", LORY_NO: "text" });
+itemSchema.index({ LORY_CD: "text" });
+itemSchema.index({ LORY_NO: "text" });
+itemSchema.index({ CLIENT_CODE: 1, COMPANY_CODE: 1 });
 
 var Item = mongoose.model("Item", itemSchema);
 
