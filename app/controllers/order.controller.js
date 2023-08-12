@@ -23,6 +23,8 @@ export const getOrders = async (req, res) => {
           ORD_NO: { $first: "$ORD_NO" },
           PARTY_CD: { $first: "$PARTY_CD" },
           PARTY_NM: { $first: "$PARTY_NM" },
+          PLACE: { $first: "$PLACE" },
+          ADD1: { $first: "$ADD1" },
           ITEMS: {
             $push: {
               LORY_CD: "$LORY_CD",
@@ -44,6 +46,8 @@ export const getOrders = async (req, res) => {
           ORD_NO: 1,
           PARTY_CD: 1,
           PARTY_NM: 1,
+          PLACE: 1,
+          ADD1: 1,
           ITEMS: 1,
         },
       },
