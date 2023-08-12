@@ -12,8 +12,8 @@ const userSchema = mongoose.Schema(
     PASSWORD: String,
     PHONE_NUMBER: String,
     AGENT_ID: { type: String, index: true },
-    COMPANY_CODE: { type: String, index: true, required: true },
-    CLIENT_CODE: { type: String, index: true, required: true },
+    COMP_CD: { type: String, index: true, required: true },
+    CLIENT_CD: { type: String, index: true, required: true },
   },
   {
     timestamps: true,

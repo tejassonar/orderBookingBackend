@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const itemSchema = mongoose.Schema(
   {
+    ITEM_NM: String,
     LORY_CD: String,
     LORY_NO: String,
     WEIGHT: Number,
@@ -15,10 +16,13 @@ const itemSchema = mongoose.Schema(
       type: Number,
       required: false,
     },
+    PUQTY: Number,
+    SLWAT: Number,
+    // PUWAT: Number,
     BALQTY: Number,
     PKG: Number,
-    COMPANY_CODE: String,
-    CLIENT_CODE: String,
+    COMP_CD: String,
+    CLIENT_CD: String,
   },
   {
     timestamps: true,
@@ -28,7 +32,7 @@ const itemSchema = mongoose.Schema(
 // itemSchema.index({ LORY_CD: "text", LORY_NO: "text" });
 itemSchema.index({ LORY_CD: "text" });
 itemSchema.index({ LORY_NO: "text" });
-itemSchema.index({ CLIENT_CODE: 1, COMPANY_CODE: 1 });
+itemSchema.index({ CLIENT_CD: 1, COMP_CD: 1 });
 
 var Item = mongoose.model("Item", itemSchema);
 

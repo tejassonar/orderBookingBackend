@@ -8,8 +8,8 @@ const router = express.Router();
 export const getItems = async (req, res) => {
   try {
     const allItems = await Item.find({
-      COMPANY_CODE: req.user.COMPANY_CODE,
-      CLIENT_CODE: req.user.CLIENT_CODE,
+      COMP_CD: req.user.COMP_CD,
+      CLIENT_CD: req.user.CLIENT_CD,
     });
 
     res.status(200).json(allItems);
@@ -20,8 +20,8 @@ export const getItems = async (req, res) => {
 export const searchItem = async (req, res) => {
   try {
     const searchedItems = await Item.find({
-      COMPANY_CODE: req.user.COMPANY_CODE,
-      CLIENT_CODE: req.user.CLIENT_CODE,
+      COMP_CD: req.user.COMP_CD,
+      CLIENT_CD: req.user.CLIENT_CD,
       $or: [
         {
           LORY_CD: {
@@ -59,7 +59,7 @@ export const addAllItems = async (req, res) => {
     // Fetch the existing data from the 'Item' collection
     const existingItemData = await Item.find(
       {},
-      // { COMPANY_CODE: csvData[0].COMPANY_CODE },           //IMPORTANT for retrieving items with company code to update/add only specific company data
+      // { COMP_CD: csvData[0].COMP_CD },           //IMPORTANT for retrieving items with company code to update/add only specific company data
       { _id: 0, LORY_CD: 1 }
     );
 

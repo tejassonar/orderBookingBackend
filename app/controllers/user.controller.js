@@ -112,8 +112,8 @@ export const updateUser = asyncHandler(async (req, res) => {
       firstName: user.FIRST_NAME,
       lastName: user.LAST_NAME,
       email: user.EMAIL,
-      companyCode: user.COMPANY_CODE,
-      clientCode: user.CLIENT_CODE,
+      companyCode: user.COMP_CD,
+      clientCode: user.CLIENT_CD,
     });
   }
 });

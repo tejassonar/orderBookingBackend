@@ -7,10 +7,11 @@ import { parse } from "csv-parse";
 const router = express.Router();
 
 export const getParties = async (req, res) => {
+  console.log(req?.user?.COMP_CD, req?.user?.CLIENT_CD, "====x");
   try {
     const allParties = await Party.find({
-      COMPANY_CODE: req.user.COMPANY_CODE,
-      CLIENT_CODE: req.user.CLIENT_CODE,
+      COMP_CD: req.user.COMP_CD,
+      CLIENT_CD: req.user.CLIENT_CD,
     }).limit(100);
     res.status(200).json(allParties);
   } catch (error) {
@@ -21,8 +22,8 @@ export const getParties = async (req, res) => {
 export const searchParty = async (req, res) => {
   try {
     const searchedParties = await Party.find({
-      COMPANY_CODE: req.user.COMPANY_CODE,
-      CLIENT_CODE: req.user.CLIENT_CODE,
+      COMP_CD: req.user.COMP_CD,
+      CLIENT_CD: req.user.CLIENT_CD,
       $or: [
         {
           PARTY_NM: {
@@ -76,7 +77,7 @@ export const addAllParties = async (req, res) => {
     // Fetch the existing data from the 'Party' collection
     const existingPartyData = await Party.find(
       {},
-      // { COMPANY_CODE: csvData[0].COMPANY_CODE },           //IMPORTANT for retrieving parties with company code to update/add only specific company data
+      // { COMP_CD: csvData[0].COMP_CD },           //IMPORTANT for retrieving parties with company code to update/add only specific company data
       { _id: 0, PARTY_CD: 1 }
     );
 

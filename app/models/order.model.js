@@ -14,8 +14,8 @@ const orderSchema = mongoose.Schema(
     BRAND_CD: String,
     REMARK: String,
     AGENT_ID: { type: String, index: true },
-    COMPANY_CODE: { type: String, index: true },
-    CLIENT_CODE: { type: String, index: true },
+    COMP_CD: { type: String, index: true },
+    CLIENT_CD: { type: String, index: true },
   },
   {
     timestamps: true,
