@@ -27,6 +27,7 @@ export const getOrders = async (req, res) => {
             $push: {
               LORY_CD: "$LORY_CD",
               LORY_NO: "$LORY_NO",
+              ITEM_NM: "$ITEM_NM",
               QTY: "$QTY",
               RATE: "$RATE",
               BRAND_CD: "$BRAND_CD",
