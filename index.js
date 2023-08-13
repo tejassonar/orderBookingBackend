@@ -7,6 +7,8 @@ import orderRoutes from "./app/routes/order.routes.js";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import { notFound, errorHandler } from "./app/middleware/errorHandler.js";
+import fs from "fs";
+import path from "path";
 
 dotenv.config();
 const port = process.env.PORT || 5000;
@@ -19,6 +21,28 @@ mongoose
     useUnifiedTopology: true,
   })
   .then(() => {
+    const folderPath = `${process.cwd()}/uploads`;
+
+    // Read the folder contents
+    fs.readdir(folderPath, (err, files) => {
+      if (err) {
+        console.error("Error reading folder:", err);
+        return;
+      }
+
+      // Loop through the files and delete each one
+      files.forEach((file) => {
+        const filePath = path.join(folderPath, file);
+
+        fs.unlink(filePath, (err) => {
+          if (err) {
+            console.error("Error deleting file:", err);
+          } else {
+            console.log(`Deleted ${file}`);
+          }
+        });
+      });
+    });
     console.log("Successfully connected to the database");
   })
   .catch((err) => {
