@@ -9,12 +9,31 @@ const router = express.Router();
 
 export const getOrders = async (req, res) => {
   try {
+    const dateObj = new Date(req.query.date);
+    const orderDate = new Date(
+      Date.UTC(
+        dateObj.getFullYear(),
+        dateObj.getMonth(),
+        dateObj.getDate(),
+        0,
+        0,
+        0
+      )
+    );
+
     const allOrders = await Order.aggregate([
       {
         $match: {
+          COMP_CD: req.user.COMP_CD,
+          CLIENT_CD: req.user.CLIENT_CD,
           AGENT_ID: req.user.AGENT_ID,
+          ORD_DT: {
+            $eq: orderDate,
+            // $lt: new Date(orderDate.setDate(orderDate.getDate() + 1)),
+          },
         },
       },
+
       {
         $group: {
           _id: "$ORD_NO",
@@ -25,6 +44,7 @@ export const getOrders = async (req, res) => {
           PARTY_NM: { $first: "$PARTY_NM" },
           PLACE: { $first: "$PLACE" },
           ADD1: { $first: "$ADD1" },
+          createdAt: { $first: "$createdAt" },
           ITEMS: {
             $push: {
               LORY_CD: "$LORY_CD",
@@ -36,6 +56,11 @@ export const getOrders = async (req, res) => {
               REMARK: "$REMARK",
             },
           },
+        },
+      },
+      {
+        $sort: {
+          createdAt: 1,
         },
       },
       {
