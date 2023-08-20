@@ -24,7 +24,7 @@ export const searchItem = async (req, res) => {
       CLIENT_CD: req.user.CLIENT_CD,
       $or: [
         {
-          LORY_CD: {
+          ITEM_NM: {
             $regex: new RegExp(req.query.name),
             $options: "i",
           },

@@ -168,3 +168,17 @@ export const addAllParties = async (req, res) => {
     res.status(404).json({ message: error.message });
   }
 };
+
+export const deleteParties = async (req, res) => {
+  try {
+    console.log(req.user.COMP_CD, req.user.CLIENT_CD, "===");
+    const deletedParties = await Party.deleteMany({
+      COMP_CD: req.user.COMP_CD,
+      CLIENT_CD: req.user.CLIENT_CD,
+    });
+    res.status(200).json(deletedParties);
+  } catch (error) {
+    console.log(error);
+    res.status(404).json({ message: error.message });
+  }
+};

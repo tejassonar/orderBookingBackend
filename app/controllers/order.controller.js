@@ -111,7 +111,31 @@ export const createOrder = async (req, res) => {
 
 export const getOrdersCSV = async (req, res) => {
   try {
-    const allOrders = await Order.find();
+    const dateObj = req.query.date ? new Date(req.query.date) : new Date();
+    const orderDate = new Date(
+      Date.UTC(
+        dateObj.getFullYear(),
+        dateObj.getMonth(),
+        dateObj.getDate(),
+        0,
+        0,
+        0
+      )
+    );
+    let findQuery = {
+      COMP_CD: req.query.COMP_CD,
+      CLIENT_CD: req.query.CLIENT_CD,
+    };
+    if (req?.query?.AGENT_CD) {
+      findQuery = { ...findQuery, AGENT_CD: req.query.AGENT_CD };
+    }
+    const allOrders = await Order.find({
+      ...findQuery,
+      ORD_DT: {
+        $eq: orderDate,
+        // $lt: new Date(orderDate.setDate(orderDate.getDate() + 1)),
+      },
+    });
     const items = JSON.parse(JSON.stringify(allOrders));
     const replacer = (key, value) => (value === null ? "" : value); // specify how you want to handle null values here
     const header = Object.keys(items[0]);

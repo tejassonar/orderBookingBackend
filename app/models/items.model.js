@@ -30,7 +30,7 @@ const itemSchema = mongoose.Schema(
 );
 
 // itemSchema.index({ LORY_CD: "text", LORY_NO: "text" });
-itemSchema.index({ LORY_CD: "text" });
+itemSchema.index({ ITEM_NM: "text" });
 itemSchema.index({ LORY_NO: "text" });
 itemSchema.index({ CLIENT_CD: 1, COMP_CD: 1 });
 
