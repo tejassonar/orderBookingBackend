@@ -9,7 +9,7 @@ const router = express.Router();
 
 export const getOrders = async (req, res) => {
   try {
-    const dateObj = new Date(req.query.date);
+    const dateObj = req.query.date ? new Date(req.query.date) : new Date();
     const orderDate = new Date(
       Date.UTC(
         dateObj.getFullYear(),
@@ -21,12 +21,17 @@ export const getOrders = async (req, res) => {
       )
     );
 
+    let findQuery = {
+      COMP_CD: req.user.COMP_CD,
+      CLIENT_CD: req.user.CLIENT_CD,
+    };
+    if (req?.user?.AGENT_CD) {
+      findQuery = { ...findQuery, AGENT_CD: req.user.AGENT_CD };
+    }
     const allOrders = await Order.aggregate([
       {
         $match: {
-          COMP_CD: req.user.COMP_CD,
-          CLIENT_CD: req.user.CLIENT_CD,
-          AGENT_CD: req.user.AGENT_CD,
+          ...findQuery,
           ORD_DT: {
             $eq: orderDate,
             // $lt: new Date(orderDate.setDate(orderDate.getDate() + 1)),

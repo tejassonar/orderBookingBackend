@@ -25,6 +25,8 @@ const orderSchema = mongoose.Schema(
   }
 );
 
+orderSchema.index({ CLIENT_CD: 1, COMP_CD: 1, AGENT_CD: 1 });
+
 var Order = mongoose.model("Order", orderSchema);
 
 export default Order;

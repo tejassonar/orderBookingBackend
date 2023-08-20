@@ -8,11 +8,15 @@ const router = express.Router();
 
 export const getParties = async (req, res) => {
   try {
-    const allParties = await Party.find({
-      AGENT_CD: req.user.AGENT_CD,
+    let findQuery = {
       COMP_CD: req.user.COMP_CD,
       CLIENT_CD: req.user.CLIENT_CD,
-    }).limit(100);
+    };
+    if (req?.user?.AGENT_CD) {
+      findQuery = { ...findQuery, AGENT_CD: req.user.AGENT_CD };
+    }
+    console.log(findQuery, "findQuery");
+    const allParties = await Party.find(findQuery).limit(100);
 
     res.status(200).json(allParties);
   } catch (error) {
@@ -22,9 +26,16 @@ export const getParties = async (req, res) => {
 
 export const searchParty = async (req, res) => {
   try {
-    const searchedParties = await Party.find({
+    let findQuery = {
       COMP_CD: req.user.COMP_CD,
       CLIENT_CD: req.user.CLIENT_CD,
+    };
+    if (req?.user?.AGENT_CD) {
+      findQuery = { ...findQuery, AGENT_CD: req.user.AGENT_CD };
+    }
+    console.log(findQuery, "findQuery");
+    const searchedParties = await Party.find({
+      ...findQuery,
       $or: [
         {
           PARTY_NM: {
