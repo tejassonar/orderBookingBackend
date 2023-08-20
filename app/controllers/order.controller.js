@@ -26,7 +26,7 @@ export const getOrders = async (req, res) => {
         $match: {
           COMP_CD: req.user.COMP_CD,
           CLIENT_CD: req.user.CLIENT_CD,
-          AGENT_ID: req.user.AGENT_ID,
+          AGENT_CD: req.user.AGENT_CD,
           ORD_DT: {
             $eq: orderDate,
             // $lt: new Date(orderDate.setDate(orderDate.getDate() + 1)),

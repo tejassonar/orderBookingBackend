@@ -16,7 +16,7 @@ const orderSchema = mongoose.Schema(
     REMARK: String,
     ADD1: String,
     PLACE: String,
-    AGENT_ID: { type: String, index: true },
+    AGENT_CD: { type: String, index: true },
     COMP_CD: { type: String, index: true },
     CLIENT_CD: { type: String, index: true },
   },

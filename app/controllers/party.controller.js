@@ -7,12 +7,13 @@ import { parse } from "csv-parse";
 const router = express.Router();
 
 export const getParties = async (req, res) => {
-  console.log(req?.user?.COMP_CD, req?.user?.CLIENT_CD, "====x");
   try {
     const allParties = await Party.find({
+      AGENT_CD: req.user.AGENT_CD,
       COMP_CD: req.user.COMP_CD,
       CLIENT_CD: req.user.CLIENT_CD,
     }).limit(100);
+
     res.status(200).json(allParties);
   } catch (error) {
     res.status(404).json({ message: error.message });
@@ -152,6 +153,7 @@ export const addAllParties = async (req, res) => {
 
     // console.log(parties, "Parties");
   } catch (error) {
+    console.log(error);
     res.status(404).json({ message: error.message });
   }
 };
