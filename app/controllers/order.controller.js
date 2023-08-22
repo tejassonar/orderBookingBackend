@@ -137,6 +137,10 @@ export const getOrdersCSV = async (req, res) => {
       },
     });
     const items = JSON.parse(JSON.stringify(allOrders));
+    if (items.length == 0) {
+      res.status(200);
+      res.json({ message: "No Orders Found" });
+    }
     const replacer = (key, value) => (value === null ? "" : value); // specify how you want to handle null values here
     const header = Object.keys(items[0]);
     const csv = [
@@ -153,5 +157,6 @@ export const getOrdersCSV = async (req, res) => {
     return res.send(csv);
   } catch (err) {
     console.log(err, "Error==");
+    res.status();
   }
 };

@@ -121,3 +121,17 @@ export const checkItemQuantity = async (req, res) => {
     res.status(404).json({ message: err.message });
   }
 };
+
+export const deleteItems = async (req, res) => {
+  try {
+    // console.log(req.user.COMP_CD, req.user.CLIENT_CD, "===");
+    const deletedParties = await Item.deleteMany({
+      COMP_CD: "mt",
+      CLIENT_CD: "MTK0001",
+    });
+    res.status(200).json(deletedParties);
+  } catch (error) {
+    console.log(error);
+    res.status(404).json({ message: error.message });
+  }
+};
