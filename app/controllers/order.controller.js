@@ -52,6 +52,7 @@ export const getOrders = async (req, res) => {
           createdAt: { $first: "$createdAt" },
           ITEMS: {
             $push: {
+              orderItemId: "$_id",
               LORY_CD: "$LORY_CD",
               LORY_NO: "$LORY_NO",
               ITEM_NM: "$ITEM_NM",
@@ -157,6 +158,85 @@ export const getOrdersCSV = async (req, res) => {
     return res.send(csv);
   } catch (err) {
     console.log(err, "Error==");
-    res.status();
+    res.status(400);
+  }
+};
+
+export const updateOrderItem = async (req, res) => {
+  try {
+    const orderItem = await Order.findById(req.params.orderItemId);
+
+    if (!orderItem) {
+      res.status(400).json({ message: "Order item not found!" });
+      return;
+    }
+
+    //Quantity cases
+    //1. Increased quantity should be less than Item's BALQTY
+    //2. If QTY is increased reduce the Item's BALQTY by the difference
+    //3. If QTY is decreased increase the Item's BALQTY by the difference
+
+    const item = await Item.findOne({ LORY_CD: orderItem.LORY_CD });
+    console.log(item, "Item");
+    if (item) {
+      const differenceInQTY = req.body.QTY - orderItem.QTY;
+      console.log("0");
+      console.log("1", req.body.QTY, differenceInQTY);
+      if (req.body.QTY && differenceInQTY) {
+        if (differenceInQTY > 0 && item.BALQTY < differenceInQTY) {
+          res.status(400).json({
+            message: "Can't update the item due to insufficient quantity",
+          });
+          return;
+        } else {
+          item.BALQTY = item.BALQTY - differenceInQTY;
+        }
+      }
+    }
+    await Object.assign(orderItem, req.body);
+    const errors = await orderItem.validateSync();
+
+    if (errors) {
+      res.status(400);
+      res.json({ message: "Invalid data" });
+      return;
+    }
+    if (item) await item.save();
+    await orderItem.save();
+    res.status(200).json({ message: "Items saved successfully" });
+  } catch (err) {
+    console.log(err, "Error");
+    res.status(400);
+  }
+};
+export const deleteOrderItem = async (req, res) => {
+  try {
+    const orderItem = await Order.findById(req.params.orderItemId);
+
+    if (!orderItem) {
+      res.status(400).json({ message: "Order item not found!" });
+      return;
+    }
+
+    const item = await Item.findOne({ LORY_CD: orderItem.LORY_CD });
+
+    if (item) {
+      item.BALQTY = item.BALQTY + orderItem.QTY;
+
+      const errors = await item.validateSync();
+      if (errors) {
+        res.status(400);
+        res.json({ message: "Can't perform this action!" });
+      }
+      await item.save();
+    }
+
+    const deletedOrderItem = await Order.deleteOne({
+      _id: req.params.orderItemId,
+    });
+    res.status(200).json(deletedOrderItem);
+  } catch (err) {
+    console.log(err, "Error");
+    res.status(400);
   }
 };

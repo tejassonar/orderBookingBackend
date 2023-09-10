@@ -74,22 +74,27 @@ export const createUser = asyncHandler(async (req, res) => {
 // @route   POST /api/users/login
 // @access  Public
 export const loginUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  // Check for user email
-  const user = await User.findOne({ EMAIL: email }).select(
-    "-createdAt -updatedAt -__v"
-  );
+    // Check for user email
+    const user = await User.findOne({ EMAIL: email }).select(
+      "-createdAt -updatedAt -__v"
+    );
 
-  if (user && (await bcrypt.compare(password, user.PASSWORD))) {
-    delete user._doc.PASSWORD;
-    res.json({
-      ...user._doc,
-      token: generateToken(user._id),
-    });
-  } else {
-    res.status(400);
-    throw new Error("Invalid credentials");
+    if (user && (await bcrypt.compare(password, user.PASSWORD))) {
+      delete user._doc.PASSWORD;
+      res.json({
+        ...user._doc,
+        token: generateToken(user._id),
+      });
+    } else {
+      res.status(400);
+      throw new Error("Invalid credentials");
+    }
+  } catch (err) {
+    console.log(err);
+    throw new Error(err);
   }
 });
 
