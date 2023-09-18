@@ -13,7 +13,10 @@ export const getParties = async (req, res) => {
       CLIENT_CD: req.user.CLIENT_CD,
     };
     if (req?.user?.AGENT_CD) {
-      findQuery = { ...findQuery, AGENT_CD: req.user.AGENT_CD };
+      findQuery = {
+        ...findQuery,
+        $or: [{ AGENT_CD: req.user.AGENT_CD }, { AGENT_CD: "" }],
+      };
     }
     console.log(findQuery, "findQuery");
     const allParties = await Party.find(findQuery).limit(100);
@@ -31,7 +34,10 @@ export const searchParty = async (req, res) => {
       CLIENT_CD: req.user.CLIENT_CD,
     };
     if (req?.user?.AGENT_CD) {
-      findQuery = { ...findQuery, AGENT_CD: req.user.AGENT_CD };
+      findQuery = {
+        ...findQuery,
+        $or: [{ AGENT_CD: req.user.AGENT_CD }, { AGENT_CD: "" }],
+      };
     }
     console.log(findQuery, "findQuery");
     const searchedParties = await Party.find({

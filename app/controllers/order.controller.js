@@ -209,6 +209,7 @@ export const updateOrderItem = async (req, res) => {
     res.status(400);
   }
 };
+
 export const deleteOrderItem = async (req, res) => {
   try {
     const orderItem = await Order.findById(req.params.orderItemId);
