@@ -42,18 +42,22 @@ export const searchParty = async (req, res) => {
     console.log(findQuery, "findQuery");
     const searchedParties = await Party.find({
       ...findQuery,
-      $or: [
+      $and: [
         {
-          PARTY_NM: {
-            $regex: new RegExp(req.query.name),
-            $options: "i",
-          },
-        },
-        {
-          PLACE: {
-            $regex: new RegExp(req.query.name),
-            $options: "i",
-          },
+          $or: [
+            {
+              PARTY_NM: {
+                $regex: new RegExp(req.query.name),
+                $options: "i",
+              },
+            },
+            {
+              PLACE: {
+                $regex: new RegExp(req.query.name),
+                $options: "i",
+              },
+            },
+          ],
         },
       ],
     });

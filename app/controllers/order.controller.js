@@ -50,6 +50,7 @@ export const getOrders = async (req, res) => {
           PLACE: { $first: "$PLACE" },
           ADD1: { $first: "$ADD1" },
           createdAt: { $first: "$createdAt" },
+          AGENT_CD: { $first: "$AGENT_CD" },
           ITEMS: {
             $push: {
               orderItemId: "$_id",
@@ -79,6 +80,7 @@ export const getOrders = async (req, res) => {
           PARTY_NM: 1,
           PLACE: 1,
           ADD1: 1,
+          AGENT_CD: 1,
           ITEMS: 1,
         },
       },
