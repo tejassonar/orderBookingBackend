@@ -135,11 +135,28 @@ export const checkItemQuantity = async (req, res) => {
 export const deleteItems = async (req, res) => {
   try {
     // console.log(req.user.COMP_CD, req.user.CLIENT_CD, "===");
-    const deletedParties = await Item.deleteMany({
+    const deletedItems = await Item.deleteMany({
       COMP_CD: "mt",
       CLIENT_CD: "MTK0001",
     });
-    res.status(200).json(deletedParties);
+    res.status(200).json(deletedItems);
+  } catch (error) {
+    console.log(error);
+    res.status(400).json({ message: error.message });
+  }
+};
+export const updateItemQuantity = async (req, res) => {
+  try {
+    req.body.forEach(async (item) => {
+      const inventoryItem = await Item.findOne({ LORY_CD: item.LORY_CD });
+      if (inventoryItem) {
+        inventoryItem.BALQTY = inventoryItem.BALQTY + item.PUQTY;
+        await inventoryItem.save();
+      } else {
+        const newInventoryItem = await Item.create(item);
+      }
+    });
+    res.status(200).json({ message: "success" });
   } catch (error) {
     console.log(error);
     res.status(400).json({ message: error.message });
