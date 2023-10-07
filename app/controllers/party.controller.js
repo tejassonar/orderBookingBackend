@@ -19,7 +19,7 @@ export const getParties = async (req, res) => {
       };
     }
     console.log(findQuery, "findQuery");
-    const allParties = await Party.find(findQuery).limit(100);
+    const allParties = await Party.find(findQuery).limit(20);
 
     res.status(200).json(allParties);
   } catch (error) {

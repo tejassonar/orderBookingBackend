@@ -4,6 +4,8 @@ import itemRoutes from "./app/routes/items.routes.js";
 import userRoutes from "./app/routes/user.routes.js";
 import partyRoutes from "./app/routes/party.routes.js";
 import orderRoutes from "./app/routes/order.routes.js";
+import billRoutes from "./app/routes/bills.routes.js";
+import paymentRoutes from "./app/routes/payments.routes.js";
 import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import { notFound, errorHandler } from "./app/middleware/errorHandler.js";
@@ -59,6 +61,8 @@ app.use("/api/items", itemRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/parties", partyRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/bills", billRoutes);
+app.use("/api/payments", paymentRoutes);
 app.get("/", (req, res) => {
   res.json({
     message: "Welcome to the Order Booking app!",
