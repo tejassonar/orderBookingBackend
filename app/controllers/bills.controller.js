@@ -83,6 +83,11 @@ export const getAllPartyBills = async (req, res) => {
         },
       },
       {
+        $sort: {
+          DOC_DT: 1,
+        },
+      },
+      {
         $project: {
           _id: 0,
           createdAt: 0,

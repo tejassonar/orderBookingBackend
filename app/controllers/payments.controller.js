@@ -60,7 +60,11 @@ export const getPayments = async (req, res) => {
           },
         },
       },
-
+      {
+        $sort: {
+          DOC_DT: 1,
+        },
+      },
       {
         $group: {
           _id: "$BILL_NO",
