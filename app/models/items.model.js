@@ -7,6 +7,7 @@ const itemSchema = mongoose.Schema(
     LORY_NO: String,
     WEIGHT: Number,
     QTY: Number,
+    RATE: Number,
     ORD_DT: { type: mongoose.SchemaTypes.Mixed, required: false },
     P_LORY: String,
     SLQTY: Number,

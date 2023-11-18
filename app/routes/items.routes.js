@@ -5,7 +5,7 @@ import {
   searchItem,
   checkItemQuantity,
   deleteItems,
-  updateItemQuantity,
+  updateItemQuantityAndRate,
 } from "../controllers/items.controller.js";
 import multer from "multer";
 import { protect } from "../middleware/authMiddleware.js";
@@ -18,7 +18,7 @@ router.delete("/", deleteItems);
 router.get("/search", protect, searchItem);
 router.post("/bulk", upload.single("bulkItems"), addAllItems);
 router.get("/:itemId", checkItemQuantity);
-router.put("/", updateItemQuantity);
+router.put("/", protect, updateItemQuantityAndRate);
 // router.post();
 
 export default router;
