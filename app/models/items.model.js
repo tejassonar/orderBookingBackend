@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const itemSchema = mongoose.Schema(
   {
     ITEM_NM: String,
-    LORY_CD: { type: String, unique: true, index: true },
+    LORY_CD: { type: String, index: true },
     LORY_NO: String,
     WEIGHT: Number,
     QTY: Number,

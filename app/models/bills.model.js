@@ -4,7 +4,6 @@ const billSchema = mongoose.Schema(
   {
     DOC_NO: {
       type: String,
-      unique: true,
       required: [true, "Please add a DOC_NO"],
     },
     DOC_DT: Date,
