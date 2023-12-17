@@ -49,6 +49,7 @@ export const getOrders = async (req, res) => {
           PARTY_NM: { $first: "$PARTY_NM" },
           PLACE: { $first: "$PLACE" },
           ADD1: { $first: "$ADD1" },
+          REMARK: { $first: "$REMARK" },
           createdAt: { $first: "$createdAt" },
           AGENT_CD: { $first: "$AGENT_CD" },
           ITEMS: {
@@ -60,7 +61,6 @@ export const getOrders = async (req, res) => {
               QTY: "$QTY",
               RATE: "$RATE",
               BRAND_CD: "$BRAND_CD",
-              REMARK: "$REMARK",
             },
           },
         },
@@ -77,6 +77,7 @@ export const getOrders = async (req, res) => {
           ORD_DT: 1,
           ORD_NO: 1,
           PARTY_CD: 1,
+          REMARK: 1,
           PARTY_NM: 1,
           PLACE: 1,
           ADD1: 1,
