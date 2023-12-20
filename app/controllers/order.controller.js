@@ -146,7 +146,29 @@ export const getOrdersCSV = async (req, res) => {
       res.json({ message: "No Orders Found" });
     }
     const replacer = (key, value) => (value === null ? "" : value); // specify how you want to handle null values here
-    const header = Object.keys(items[0]);
+    // const header = Object.keys(items[0]);
+    const header = [
+      "_id",
+      "USER_ID",
+      "ORD_DT",
+      "ORD_NO",
+      "PARTY_CD",
+      "PARTY_NM",
+      "LORY_CD",
+      "LORY_NO",
+      "ITEM_NM",
+      "QTY",
+      "RATE",
+      "REMARK",
+      "ADD1",
+      "PLACE",
+      "AGENT_CD",
+      "COMP_CD",
+      "CLIENT_CD",
+      "__v",
+      "createdAt",
+      "updatedAt",
+    ];
     const csv = [
       header.join(","), // header row first
       ...items.map((row) =>
@@ -159,6 +181,7 @@ export const getOrdersCSV = async (req, res) => {
     res.header("Content-Type", "text/csv");
     res.attachment("order.csv");
     return res.send(csv);
+    // return;
   } catch (err) {
     console.log(err, "Error==");
     res.status(400);
