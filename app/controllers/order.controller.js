@@ -144,6 +144,7 @@ export const getOrdersCSV = async (req, res) => {
     if (items.length == 0) {
       res.status(200);
       res.json({ message: "No Orders Found" });
+      return;
     }
     const replacer = (key, value) => (value === null ? "" : value); // specify how you want to handle null values here
     // const header = Object.keys(items[0]);
@@ -165,6 +166,7 @@ export const getOrdersCSV = async (req, res) => {
       "AGENT_CD",
       "COMP_CD",
       "CLIENT_CD",
+      "ITEM_CD",
       "__v",
       "createdAt",
       "updatedAt",
