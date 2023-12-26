@@ -10,6 +10,7 @@ const orderSchema = mongoose.Schema(
     LORY_CD: String,
     LORY_NO: String,
     ITEM_NM: String,
+    ITEM_CD: String,
     QTY: Number,
     RATE: Number,
     BRAND_CD: String,
