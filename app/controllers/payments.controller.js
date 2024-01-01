@@ -6,6 +6,12 @@ export const createPayment = async (req, res) => {
   const error = [];
   for (const singleBill of req.body.bills) {
     const bill = await Bill.findOne({ DOC_NO: singleBill.DOC_NO });
+    console.log(bill, "bill");
+    console.log(bill.PND_AMT, "bill.PND_AMT");
+    console.log(
+      bill.PND_AMT >= Number(singleBill.RCV_AMT),
+      "bill.PND_AMT >= Number(singleBill.RCV_AMT)"
+    );
     if (bill && bill.PND_AMT >= Number(singleBill.RCV_AMT)) {
       bill.PND_AMT -= Number(singleBill.RCV_AMT);
       singleBill.PND_AMT -= Number(singleBill.RCV_AMT);
@@ -14,7 +20,7 @@ export const createPayment = async (req, res) => {
       error.push(singleBill);
     }
   }
-  console.log(req.body.bills, "req.body.bills");
+  console.log(error, "==error==");
   const payment = await Payment.insertMany(req.body.bills);
   res.status(200).json(payment);
   // res.status(200).json({ res: "success" });
