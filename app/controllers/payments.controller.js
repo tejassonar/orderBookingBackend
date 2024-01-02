@@ -5,7 +5,11 @@ export const createPayment = async (req, res) => {
   // try {
   const error = [];
   for (const singleBill of req.body.bills) {
-    const bill = await Bill.findOne({ DOC_NO: singleBill.DOC_NO });
+    const bill = await Bill.findOne({
+      DOC_NO: singleBill.DOC_NO,
+      COMP_CD: req.user.COMP_CD,
+      CLIENT_CD: req.user.CLIENT_CD,
+    });
     console.log(bill, "bill");
     console.log(bill.PND_AMT, "bill.PND_AMT");
     console.log(
