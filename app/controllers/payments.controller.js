@@ -4,7 +4,10 @@ import Payment from "../models/payments.model.js";
 export const createPayment = async (req, res) => {
   // try {
   const error = [];
-  for (const singleBill of req.body.bills) {
+  console.log(req.body.bills, "req.body.bills");
+  for await (const singleBill of req.body.bills) {
+    console.log(singleBill, "singleBill");
+    // for (const singleBill of req.body.bills) {
     const bill = await Bill.findOne({
       DOC_NO: singleBill.DOC_NO,
       COMP_CD: req.user.COMP_CD,
