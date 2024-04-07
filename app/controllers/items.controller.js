@@ -12,7 +12,7 @@ export const getItems = async (req, res) => {
       CLIENT_CD: req.user.CLIENT_CD,
       BALQTY: { $ne: 0 },
     });
-
+    console.log(allItems, "allItems", req.user.COMP_CD, req.user.CLIENT_CD);
     res.status(200).json(allItems);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -107,7 +107,7 @@ export const addAllItems = async (req, res) => {
     // const result = await Item.bulkWrite(bulkOps);
 
     const deletedItems = await Item.deleteMany(
-      { COMP_CD: csvData[0].COMP_CD } //IMPORTANT for retrieving items with company code to update/add only specific company data
+      { COMP_CD: csvData[0].COMP_CD, CLIENT_CD: csvData[0].CLIENT_CD } //IMPORTANT for retrieving items with company code to update/add only specific company data
     );
     const result = await Item.insertMany(csvData);
     res.status(200).json({
@@ -135,9 +135,10 @@ export const checkItemQuantity = async (req, res) => {
 export const deleteItems = async (req, res) => {
   try {
     // console.log(req.user.COMP_CD, req.user.CLIENT_CD, "===");
+    console.log(req.body.COM_CD, req.body.CLIENT_CD);
     const deletedItems = await Item.deleteMany({
-      COMP_CD: "mt",
-      CLIENT_CD: "MTK0001",
+      COMP_CD: req.body.COM_CD,
+      CLIENT_CD: req.body.CLIENT_CD,
     });
     res.status(200).json(deletedItems);
   } catch (error) {
