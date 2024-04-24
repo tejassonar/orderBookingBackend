@@ -62,7 +62,8 @@ export const getPayments = async (req, res) => {
       findQuery = { ...findQuery, PAYMENT_TYPE: req.query.payment_method };
     }
 
-    console.log(paymentDate, "paymentDate", findQuery);
+    // console.log(paymentDate, "paymentDate", findQuery);
+     console.log(findQuery, "findQuery", paymentDate, req.query?.date);
     const allPayments = await Payment.aggregate([
       {
         $match: {
