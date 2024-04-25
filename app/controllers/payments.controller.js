@@ -39,6 +39,12 @@ export const createPayment = async (req, res) => {
 export const getPayments = async (req, res) => {
   try {
     const dateObj = req.query.date ? new Date(req.query.date) : new Date();
+     console.log(
+      dateObj.getFullYear(),
+      dateObj.getMonth(),
+      dateObj.getDate(),
+      "======================"
+    );
     const paymentDate = new Date(
       Date.UTC(
         dateObj.getFullYear(),
