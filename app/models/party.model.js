@@ -38,7 +38,7 @@ const partySchema = mongoose.Schema(
 // partySchema.index({ PARTY_NM: "text", PLACE: "text" });
 partySchema.index({ PARTY_NM: "text" });
 partySchema.index({ PLACE: "text" });
-partySchema.index({ CLIENT_CD: 1, COMP_CD: 1 });
+partySchema.index({ CLIENT_CD: 1, COMP_CD: 1, PARTY_CD: 1 }, { unique: true });
 
 var Party = mongoose.model("Party", partySchema);
 

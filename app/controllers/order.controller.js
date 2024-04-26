@@ -4,6 +4,7 @@ import Order from "../models/order.model.js";
 import csv from "csvtojson";
 import { log } from "console";
 import Item from "../models/items.model.js";
+import asyncHandler from "express-async-handler";
 
 const router = express.Router();
 
@@ -93,25 +94,32 @@ export const getOrders = async (req, res) => {
   }
 };
 
-export const createOrder = async (req, res) => {
-  // try {
-  req.body.orders.forEach(async (order) => {
-    const item = await Item.findOne({ LORY_CD: order.LORY_CD });
-    if (item && item.BALQTY >= Number(order.QTY)) {
-      item.BALQTY = item.BALQTY - Number(order.QTY);
-      await item.save();
-    } else {
-      res.status(400);
-      throw new Error("Something Went Wrong!!");
+export const createOrder = asyncHandler(async (req, res) => {
+  const orders = [];
+  if (!req.user.BROKER) {
+    for (const order of req.body.orders) {
+      const item = await Item.findOne({ LORY_CD: order.LORY_CD });
+      if (item && item.BALQTY >= Number(order.QTY)) {
+        item.BALQTY = item.BALQTY - Number(order.QTY);
+        await item.save();
+        orders.push(order);
+      } else {
+        res.status(400);
+        throw new Error("Something Went Wrong!!");
+      }
     }
-  });
-  const order = await Order.insertMany(req.body.orders);
-  res.status(200).json(order);
-  // res.status(200).json({ res: "success" });
-  // } catch (err) {
-  //   res.status(400).json({ message: err.message });
-  // }
-};
+  }
+  if (orders.length > 0) {
+    const order = await Order.insertMany(orders);
+    res.status(200).json(order);
+  } else if (req.user.BROKER) {
+    const order = await Order.insertMany(req.body.orders);
+    res.status(200).json(order);
+  }
+  {
+    res.status(400).json({ message: "No orders were inserted" });
+  }
+});
 
 export const getOrdersCSV = async (req, res) => {
   try {

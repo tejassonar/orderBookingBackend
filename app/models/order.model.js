@@ -13,6 +13,7 @@ const orderSchema = mongoose.Schema(
     ITEM_CD: String,
     QTY: Number,
     RATE: Number,
+    SCHEME_PRICE: Number,
     BRAND_CD: String,
     REMARK: String,
     ADD1: String,

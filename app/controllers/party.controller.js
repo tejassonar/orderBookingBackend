@@ -33,34 +33,66 @@ export const searchParty = async (req, res) => {
       COMP_CD: req.user.COMP_CD,
       CLIENT_CD: req.user.CLIENT_CD,
     };
+    let filters = [];
     if (req?.user?.AGENT_CD) {
       findQuery = {
         ...findQuery,
         $or: [{ AGENT_CD: req.user.AGENT_CD }, { AGENT_CD: "" }],
       };
     }
-    console.log(findQuery, "findQuery");
-    const searchedParties = await Party.find({
-      ...findQuery,
-      $and: [
-        {
-          $or: [
+    if (req.query?.limit) {
+      filters = [...filters, { $limit: Number(req.query.limit) }];
+    }
+    // console.log(findQuery, "findQuery", ...filters);
+    const searchedParties = await Party.aggregate([
+      {
+        $match: {
+          ...findQuery,
+          $and: [
             {
-              PARTY_NM: {
-                $regex: new RegExp(req.query.name),
-                $options: "i",
-              },
-            },
-            {
-              PLACE: {
-                $regex: new RegExp(req.query.name),
-                $options: "i",
-              },
+              $or: [
+                {
+                  PARTY_NM: {
+                    $regex: new RegExp(req.query.name),
+                    $options: "i",
+                  },
+                },
+                {
+                  PLACE: {
+                    $regex: new RegExp(req.query.name),
+                    $options: "i",
+                  },
+                },
+              ],
             },
           ],
         },
-      ],
-    });
+      },
+      ...filters,
+    ]);
+
+    // const searchedParties = await Party.find({
+    //   ...findQuery,
+    //   $and: [
+    //     {
+    //       $or: [
+    //         {
+    //           PARTY_NM: {
+    //             $regex: new RegExp(req.query.name),
+    //             $options: "i",
+    //           },
+    //         },
+    //         {
+    //           PLACE: {
+    //             $regex: new RegExp(req.query.name),
+    //             $options: "i",
+    //           },
+    //         },
+    //       ],
+    //     },
+    //   ],
+    //   ...filters,
+    // });
     if (searchedParties.length > 0) {
       res.status(200).json(searchedParties);
     } else {

@@ -39,7 +39,11 @@ export const createPayment = async (req, res) => {
 export const getPayments = async (req, res) => {
   try {
     const dateObj = req.query.date ? new Date(req.query.date) : new Date();
-     console.log(
+    let fromDate;
+    let toDate;
+
+    console.log(dateObj, "dateObj");
+    console.log(
       dateObj.getFullYear(),
       dateObj.getMonth(),
       dateObj.getDate(),
@@ -56,6 +60,23 @@ export const getPayments = async (req, res) => {
       )
     );
 
+    console.log(paymentDate, "paymentDate");
+    if (req.query.from && req.query.to) {
+      const from = new Date(req.query.from);
+      const to = new Date(req.query.to);
+      if (from > to) {
+        res
+          .status(400)
+          .json({ message: "To Date should be greater than From Date" });
+      }
+      fromDate = new Date(
+        Date.UTC(from.getFullYear(), from.getMonth(), from.getDate(), 0, 0, 0)
+      );
+      toDate = new Date(
+        Date.UTC(to.getFullYear(), to.getMonth(), to.getDate(), 0, 0, 0)
+      );
+    }
+
     let findQuery = {
       COMP_CD: req.user.COMP_CD,
       CLIENT_CD: req.user.CLIENT_CD,
@@ -67,22 +88,36 @@ export const getPayments = async (req, res) => {
     if (req.query?.payment_method) {
       findQuery = { ...findQuery, PAYMENT_TYPE: req.query.payment_method };
     }
+    if (req.query?.partyCode) {
+      findQuery = { ...findQuery, PARTY_CD: req.query.partyCode };
+    }
 
-    // console.log(paymentDate, "paymentDate", findQuery);
-     console.log(findQuery, "findQuery", paymentDate, req.query?.date);
+    const billDateQuery = {
+      BILL_DT:
+        fromDate && toDate
+          ? {
+              $gte: fromDate,
+              $lte: toDate,
+            }
+          : { $eq: paymentDate },
+    };
+
+    console.log(findQuery, "findQuery", billDateQuery, req.query?.date);
     const allPayments = await Payment.aggregate([
       {
         $match: {
           ...findQuery,
-          BILL_DT: {
-            $eq: paymentDate,
-            // $lt: new Date(orderDate.setDate(orderDate.getDate() + 1)),
-          },
+          ...billDateQuery,
+          // BILL_DT: {
+          //   $eq: paymentDate,
+          //   // $lt: new Date(orderDate.setDate(orderDate.getDate() + 1)),
+          // },
         },
       },
       {
         $sort: {
           DOC_DT: 1,
+          DOC_NO: 1,
         },
       },
       {
@@ -120,7 +155,7 @@ export const getPayments = async (req, res) => {
       },
       {
         $project: {
-          _id: 0,
+          _id: 1,
           createdAt: 1,
           BILL_DT: 1,
           BILL_NO: 1,
@@ -150,7 +185,6 @@ export const getPayments = async (req, res) => {
         },
       },
     ]);
-    console.log(allPayments, "allPayments");
     res.status(200).json(allPayments);
   } catch (error) {
     console.log(error, "Errrror");
@@ -188,7 +222,7 @@ export const getPaymentsCSV = async (req, res) => {
     const payments = JSON.parse(JSON.stringify(allPayments));
     if (payments.length == 0) {
       res.status(200);
-      res.json({ message: "No Orders Found" });
+      res.json({ message: "No Payments Found" });
     }
     const replacer = (key, value) => (value === null ? "" : value); // specify how you want to handle null values here
     const header = Object.keys(payments[0]);

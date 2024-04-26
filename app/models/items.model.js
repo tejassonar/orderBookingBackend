@@ -15,7 +15,7 @@ const itemSchema = mongoose.Schema(
     YOP_WAT: Number,
     YOP_QTY: Number,
     GCD: {
-      type: Number,
+      type: mongoose.SchemaTypes.Mixed,
       required: false,
     },
     PUQTY: Number,

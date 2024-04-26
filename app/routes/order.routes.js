@@ -17,7 +17,7 @@ const upload = multer({ dest: "uploads/" });
 router.get("/", protect, getOrders);
 router.put("/:orderItemId", protect, updateOrderItem);
 router.delete("/:orderItemId", protect, deleteOrderItem);
-router.post("/", createOrder);
+router.post("/", protect, createOrder);
 router.get("/csv", getOrdersCSV);
 // router.get("/search", searchParty);
 // router.post("/bulk", upload.single("bulkParties"), addAllParties);
