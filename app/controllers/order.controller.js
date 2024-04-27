@@ -96,6 +96,8 @@ export const getOrders = async (req, res) => {
 
 export const createOrder = asyncHandler(async (req, res) => {
   const orders = [];
+  console.log(req.user.BROKER, "req.user.BROKER");
+  console.log(req.body.orders, "req.body.orders");
   if (!req.user.BROKER) {
     for (const order of req.body.orders) {
       const item = await Item.findOne({ LORY_CD: order.LORY_CD });
@@ -109,14 +111,14 @@ export const createOrder = asyncHandler(async (req, res) => {
       }
     }
   }
+  console.log(orders, "===orders===");
   if (orders.length > 0) {
     const order = await Order.insertMany(orders);
     res.status(200).json(order);
   } else if (req.user.BROKER) {
     const order = await Order.insertMany(req.body.orders);
     res.status(200).json(order);
-  }
-  {
+  } else {
     res.status(400).json({ message: "No orders were inserted" });
   }
 });
