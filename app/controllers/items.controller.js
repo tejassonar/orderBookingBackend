@@ -12,7 +12,6 @@ export const getItems = async (req, res) => {
       CLIENT_CD: req.user.CLIENT_CD,
       BALQTY: { $ne: 0 },
     });
-    console.log(allItems, "allItems", req.user.COMP_CD, req.user.CLIENT_CD);
     res.status(200).json(allItems);
   } catch (error) {
     res.status(400).json({ message: error.message });

@@ -6,19 +6,19 @@ export const createPayment = async (req, res) => {
   const error = [];
   console.log(req.body.bills, "req.body.bills");
   for await (const singleBill of req.body.bills) {
-    console.log(singleBill, "singleBill");
+    // console.log(singleBill, "singleBill");
     // for (const singleBill of req.body.bills) {
     const bill = await Bill.findOne({
       DOC_NO: singleBill.DOC_NO,
       COMP_CD: req.user.COMP_CD,
       CLIENT_CD: req.user.CLIENT_CD,
     });
-    console.log(bill, "bill");
-    console.log(bill.PND_AMT, "bill.PND_AMT");
-    console.log(
-      bill.PND_AMT >= Number(singleBill.RCV_AMT),
-      "bill.PND_AMT >= Number(singleBill.RCV_AMT)"
-    );
+    // console.log(bill, "bill");
+    // console.log(bill.PND_AMT, "bill.PND_AMT");
+    // console.log(
+    //   bill.PND_AMT >= Number(singleBill.RCV_AMT),
+    //   "bill.PND_AMT >= Number(singleBill.RCV_AMT)"
+    // );
     if (bill && bill.PND_AMT >= Number(singleBill.RCV_AMT)) {
       bill.PND_AMT -= Number(singleBill.RCV_AMT);
       singleBill.PND_AMT -= Number(singleBill.RCV_AMT);
