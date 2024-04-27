@@ -94,34 +94,39 @@ export const getOrders = async (req, res) => {
   }
 };
 
-export const createOrder = asyncHandler(async (req, res) => {
-  const orders = [];
-  console.log(req.user.BROKER, "req.user.BROKER");
-  console.log(req.body.orders, "req.body.orders");
-  if (!req.user.BROKER) {
-    for (const order of req.body.orders) {
-      const item = await Item.findOne({ LORY_CD: order.LORY_CD });
-      if (item && item.BALQTY >= Number(order.QTY)) {
-        item.BALQTY = item.BALQTY - Number(order.QTY);
-        await item.save();
-        orders.push(order);
-      } else {
-        res.status(400);
-        throw new Error("Something Went Wrong!!");
+export const createOrder = async (req, res) => {
+  try {
+    const orders = [];
+    console.log(req.user.BROKER, "req.user.BROKER");
+    console.log(req.body.orders, "req.body.orders");
+    if (!req.user?.BROKER) {
+      for (const order of req.body.orders) {
+        const item = await Item.findOne({ LORY_CD: order.LORY_CD });
+        if (item && item.BALQTY >= Number(order.QTY)) {
+          item.BALQTY = item.BALQTY - Number(order.QTY);
+          await item.save();
+          orders.push(order);
+        } else {
+          res.status(400);
+          throw new Error("Something Went Wrong!!");
+        }
       }
     }
+    console.log(orders, "===orders===");
+    if (orders.length > 0) {
+      const order = await Order.insertMany(orders);
+      res.status(200).json(order);
+    } else if (req.user.BROKER) {
+      const order = await Order.insertMany(req.body.orders);
+      res.status(200).json(order);
+    } else {
+      res.status(400).json({ message: "No orders were inserted" });
+    }
+  } catch (err) {
+    console.error(err, "Error==");
+    res.status(400);
   }
-  console.log(orders, "===orders===");
-  if (orders.length > 0) {
-    const order = await Order.insertMany(orders);
-    res.status(200).json(order);
-  } else if (req.user.BROKER) {
-    const order = await Order.insertMany(req.body.orders);
-    res.status(200).json(order);
-  } else {
-    res.status(400).json({ message: "No orders were inserted" });
-  }
-});
+};
 
 export const getOrdersCSV = async (req, res) => {
   try {
