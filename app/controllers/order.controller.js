@@ -10,6 +10,23 @@ const router = express.Router();
 
 export const getOrders = async (req, res) => {
   try {
+    let fromDate;
+    let toDate;
+    if (req.query?.from && req.query?.to) {
+      const from = new Date(req.query.from);
+      const to = new Date(req.query.to);
+      if (from > to) {
+        res
+          .status(400)
+          .json({ message: "To Date should be greater than From Date" });
+      }
+      fromDate = new Date(
+        Date.UTC(from.getFullYear(), from.getMonth(), from.getDate(), 0, 0, 0)
+      );
+      toDate = new Date(
+        Date.UTC(to.getFullYear(), to.getMonth(), to.getDate(), 0, 0, 0)
+      );
+    }
     const dateObj = req.query.date ? new Date(req.query.date) : new Date();
     const orderDate = new Date(
       Date.UTC(
@@ -29,14 +46,24 @@ export const getOrders = async (req, res) => {
     if (req?.user?.AGENT_CD) {
       findQuery = { ...findQuery, AGENT_CD: req.user.AGENT_CD };
     }
+    if (req.query?.partyCode) {
+      findQuery = { ...findQuery, PARTY_CD: req.query.partyCode };
+    }
+
+    const orderDateQuery = {
+      ORD_DT:
+        fromDate && toDate
+          ? {
+              $gte: fromDate,
+              $lte: toDate,
+            }
+          : { $eq: orderDate },
+    };
     const allOrders = await Order.aggregate([
       {
         $match: {
           ...findQuery,
-          ORD_DT: {
-            $eq: orderDate,
-            // $lt: new Date(orderDate.setDate(orderDate.getDate() + 1)),
-          },
+          ...orderDateQuery,
         },
       },
 
