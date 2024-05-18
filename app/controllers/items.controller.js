@@ -7,10 +7,16 @@ const router = express.Router();
 
 export const getItems = async (req, res) => {
   try {
+    let filterByQTY = {};
+    if (!req.user.AGENCY) {
+      filterByQTY = {
+        BALQTY: { $ne: 0 },
+      };
+    }
     const allItems = await Item.find({
       COMP_CD: req.user.COMP_CD,
       CLIENT_CD: req.user.CLIENT_CD,
-      BALQTY: { $ne: 0 },
+      ...filterByQTY,
     });
     res.status(200).json(allItems);
   } catch (error) {
@@ -19,6 +25,12 @@ export const getItems = async (req, res) => {
 };
 export const searchItem = async (req, res) => {
   try {
+    let filterByQTY = {};
+    if (!req.user.AGENCY) {
+      filterByQTY = {
+        BALQTY: { $ne: 0 },
+      };
+    }
     const searchedItems = await Item.find({
       COMP_CD: req.user.COMP_CD,
       CLIENT_CD: req.user.CLIENT_CD,
@@ -36,7 +48,8 @@ export const searchItem = async (req, res) => {
           },
         },
       ],
-      BALQTY: { $ne: 0 },
+      ...filterByQTY,
+      // BALQTY: { $ne: 0 },
     });
     if (searchedItems.length > 0) {
       res.status(200).json(searchedItems);

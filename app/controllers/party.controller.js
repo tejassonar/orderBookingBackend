@@ -130,7 +130,7 @@ export const addAllParties = async (req, res) => {
 
     // Fetch the existing data from the 'Party' collection
     const existingPartyData = await Party.find(
-      { COMP_CD: csvData[0].COMP_CD }, //IMPORTANT for retrieving parties with company code to update/add only specific company data
+      { COMP_CD: csvData[0].COMP_CD, CLIENT_CD: csvData[0].CLIENT_CD }, //IMPORTANT for retrieving parties with company code to update/add only specific company data
       { _id: 0, PARTY_CD: 1 }
     );
 

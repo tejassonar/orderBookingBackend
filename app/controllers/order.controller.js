@@ -250,8 +250,6 @@ export const updateOrderItem = async (req, res) => {
     console.log(item, "Item");
     if (item) {
       const differenceInQTY = req.body.QTY - orderItem.QTY;
-      console.log("0");
-      console.log("1", req.body.QTY, differenceInQTY);
       if (req.body.QTY && differenceInQTY) {
         if (differenceInQTY > 0 && item.BALQTY < differenceInQTY) {
           res.status(400).json({
