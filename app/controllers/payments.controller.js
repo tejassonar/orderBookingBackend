@@ -6,19 +6,11 @@ export const createPayment = async (req, res) => {
   const error = [];
   console.log(req.body.bills, "req.body.bills");
   for await (const singleBill of req.body.bills) {
-    // console.log(singleBill, "singleBill");
-    // for (const singleBill of req.body.bills) {
     const bill = await Bill.findOne({
       DOC_NO: singleBill.DOC_NO,
       COMP_CD: req.user.COMP_CD,
       CLIENT_CD: req.user.CLIENT_CD,
     });
-    // console.log(bill, "bill");
-    // console.log(bill.PND_AMT, "bill.PND_AMT");
-    // console.log(
-    //   bill.PND_AMT >= Number(singleBill.RCV_AMT),
-    //   "bill.PND_AMT >= Number(singleBill.RCV_AMT)"
-    // );
     if (bill && bill.PND_AMT >= Number(singleBill.RCV_AMT)) {
       bill.PND_AMT -= Number(singleBill.RCV_AMT);
       singleBill.PND_AMT -= Number(singleBill.RCV_AMT);
@@ -27,13 +19,8 @@ export const createPayment = async (req, res) => {
       error.push(singleBill);
     }
   }
-  console.log(error, "==error==");
   const payment = await Payment.insertMany(req.body.bills);
   res.status(200).json(payment);
-  // res.status(200).json({ res: "success" });
-  // } catch (err) {
-  //   res.status(400).json({ message: err.message });
-  // }
 };
 
 export const getPayments = async (req, res) => {
@@ -41,14 +28,6 @@ export const getPayments = async (req, res) => {
     const dateObj = req.query.date ? new Date(req.query.date) : new Date();
     let fromDate;
     let toDate;
-
-    console.log(dateObj, "dateObj");
-    console.log(
-      dateObj.getFullYear(),
-      dateObj.getMonth(),
-      dateObj.getDate(),
-      "======================"
-    );
     const paymentDate = new Date(
       Date.UTC(
         dateObj.getFullYear(),
@@ -60,7 +39,6 @@ export const getPayments = async (req, res) => {
       )
     );
 
-    console.log(paymentDate, "paymentDate");
     if (req.query.from && req.query.to) {
       const from = new Date(req.query.from);
       const to = new Date(req.query.to);

@@ -128,54 +128,55 @@ export const addAllParties = async (req, res) => {
       },
     }).fromFile(process.cwd() + `/${req.file?.path}`);
 
-    // Fetch the existing data from the 'Party' collection
-    const existingPartyData = await Party.find(
-      { COMP_CD: csvData[0].COMP_CD, CLIENT_CD: csvData[0].CLIENT_CD }, //IMPORTANT for retrieving parties with company code to update/add only specific company data
-      { _id: 0, PARTY_CD: 1 }
-    );
+    // // Fetch the existing data from the 'Party' collection
+    // const existingPartyData = await Party.find(
+    //   { COMP_CD: csvData[0].COMP_CD, CLIENT_CD: csvData[0].CLIENT_CD }, //IMPORTANT for retrieving parties with company code to update/add only specific company data
+    //   { _id: 0, PARTY_CD: 1 }
+    // );
 
-    // Determine which documents need to be updated and which ones need to be inserted
-    const documentsToUpdate = [];
-    const documentsToInsert = [];
-    for (const csvDocument of csvData) {
-      const existingDocument = existingPartyData.find(
-        (existingDoc) => existingDoc.PARTY_CD === csvDocument.PARTY_CD
-      );
+    // console.log(csvData[0].COMP_CD, csvData[0].CLIENT_CD, "csvData");
+    // // Determine which documents need to be updated and which ones need to be inserted
+    // const documentsToUpdate = [];
+    // const documentsToInsert = [];
+    // for (const csvDocument of csvData) {
+    //   const existingDocument = existingPartyData.find(
+    //     (existingDoc) => existingDoc.PARTY_CD === csvDocument.PARTY_CD
+    //   );
 
-      if (existingDocument) {
-        // Document with the same PARTY_CD already exists, so it needs an update
-        documentsToUpdate.push(csvDocument);
-      } else {
-        // Document with the given PARTY_CD doesn't exist, so it needs to be inserted
-        documentsToInsert.push(csvDocument);
-      }
-    }
+    //   if (existingDocument) {
+    //     // Document with the same PARTY_CD already exists, so it needs an update
+    //     documentsToUpdate.push(csvDocument);
+    //   } else {
+    //     // Document with the given PARTY_CD doesn't exist, so it needs to be inserted
+    //     documentsToInsert.push(csvDocument);
+    //   }
+    // }
 
-    // Perform bulk update and insert operations
-    const bulkOps = [];
+    // // Perform bulk update and insert operations
+    // const bulkOps = [];
 
-    // Push update operations to bulkOps
-    documentsToUpdate.forEach((doc) => {
-      bulkOps.push({
-        updateOne: {
-          filter: { PARTY_CD: doc.PARTY_CD },
-          update: doc,
-        },
-      });
-    });
+    // // Push update operations to bulkOps
+    // documentsToUpdate.forEach((doc) => {
+    //   bulkOps.push({
+    //     updateOne: {
+    //       filter: { PARTY_CD: doc.PARTY_CD },
+    //       update: doc,
+    //     },
+    //   });
+    // });
 
-    // Push insert operations to bulkOps
-    bulkOps.push(
-      ...documentsToInsert.map((doc) => ({
-        insertOne: {
-          document: doc,
-        },
-      }))
-    );
+    // // Push insert operations to bulkOps
+    // bulkOps.push(
+    //   ...documentsToInsert.map((doc) => ({
+    //     insertOne: {
+    //       document: doc,
+    //     },
+    //   }))
+    // );
 
-    // Execute the bulkWrite operation
-    const result = await Party.bulkWrite(bulkOps);
-    res.status(200).json(result);
+    // // Execute the bulkWrite operation
+    // const result = await Party.bulkWrite(bulkOps);
+    // res.status(200).json(result);
 
     // });
 
@@ -204,6 +205,15 @@ export const addAllParties = async (req, res) => {
     // res.status(200).json(jsonArray);
 
     // console.log(parties, "Parties");
+
+    const deletedParties = await Party.deleteMany(
+      { COMP_CD: csvData[0].COMP_CD, CLIENT_CD: csvData[0].CLIENT_CD } //IMPORTANT for retrieving items with company code to update/add only specific company data
+    );
+    const result = await Party.insertMany(csvData);
+    res.status(200).json({
+      insertedItems: result.length,
+      deleteItems: deletedParties.length,
+    });
   } catch (error) {
     console.log(error);
     res.status(400).json({ message: error.message });

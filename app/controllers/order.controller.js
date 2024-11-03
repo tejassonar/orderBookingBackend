@@ -111,6 +111,7 @@ export const getOrders = async (req, res) => {
           ADD1: 1,
           AGENT_CD: 1,
           ITEMS: 1,
+          createdAt: 1,
         },
       },
     ]);
@@ -262,9 +263,10 @@ export const updateOrderItem = async (req, res) => {
       }
     }
     await Object.assign(orderItem, req.body);
-    const errors = await orderItem.validateSync();
 
+    const errors = await orderItem.validateSync();
     if (errors) {
+      console.log(errors, "errors");
       res.status(400);
       res.json({ message: "Invalid data" });
       return;
