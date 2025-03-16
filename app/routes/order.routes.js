@@ -5,6 +5,7 @@ import {
   getOrdersCSV,
   updateOrderItem,
   deleteOrderItem,
+  addOrderItems,
   //   addAllParties,
   //   searchParty,
 } from "../controllers/order.controller.js";
@@ -18,6 +19,7 @@ router.get("/", protect, getOrders);
 router.put("/:orderItemId", protect, updateOrderItem);
 router.delete("/:orderItemId", protect, deleteOrderItem);
 router.post("/", createOrder);
+router.post("/item", protect, addOrderItems);
 router.get("/csv", getOrdersCSV);
 // router.get("/search", searchParty);
 // router.post("/bulk", upload.single("bulkParties"), addAllParties);

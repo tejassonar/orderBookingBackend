@@ -49,6 +49,11 @@ export const getOrders = async (req, res) => {
     if (req.query?.partyCode) {
       findQuery = { ...findQuery, PARTY_CD: req.query.partyCode };
     }
+    // const startOfDay = new Date(orderDate);
+    // startOfDay.setHours(0, 0, 0, 0);
+
+    // const endOfDay = new Date(orderDate);
+    // endOfDay.setHours(23, 59, 59, 999);
 
     const orderDateQuery = {
       ORD_DT:
@@ -58,6 +63,10 @@ export const getOrders = async (req, res) => {
               $lte: toDate,
             }
           : { $eq: orderDate },
+      // {
+      //     $gte: startOfDay,
+      //     $lte: endOfDay,
+      //   },
     };
     const allOrders = await Order.aggregate([
       {
@@ -140,7 +149,8 @@ export const createOrder = async (req, res) => {
         }
       }
     }
-    console.log(orders, "===orders===");
+    console.log(orders, "ordersssss");
+
     if (orders.length > 0) {
       const order = await Order.insertMany(orders);
       res.status(200).json(order);
@@ -277,6 +287,105 @@ export const updateOrderItem = async (req, res) => {
   } catch (err) {
     console.log(err, "Error");
     res.status(400);
+  }
+};
+
+export const addOrderItems = async (req, res) => {
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    const items = req.body.orders;
+    console.log(items, "items");
+
+    if (!Array.isArray(items) || items.length === 0) {
+      return res
+        .status(400)
+        .json({ message: "Invalid request: Expected an array of items!" });
+    }
+    console.log("1");
+
+    const orderId = items[0].orderId; // Assuming all items belong to the same order.
+
+    if (!orderId) {
+      return res.status(400).json({ message: "Missing required orderId!" });
+    }
+    console.log("2");
+
+    // Find the order
+    const order = await Order.findById(orderId).session(session);
+    if (!order) {
+      return res.status(400).json({ message: "Order not found!" });
+    }
+    console.log("3");
+
+    const orderItemsToSave = [];
+    const itemUpdates = [];
+
+    for (const { LORY_CD, QTY, ...rest } of items) {
+      console.log("4");
+
+      if (!LORY_CD || !QTY) {
+        return res
+          .status(400)
+          .json({ message: "Missing required fields for an item!" });
+      }
+
+      // Check if the item exists
+      const item = await Item.findOne({ LORY_CD });
+      if (!item) {
+        return res
+          .status(400)
+          .json({ message: `Item with LORY_CD ${LORY_CD} not found!` });
+      }
+
+      // Validate stock availability
+      if (item.BALQTY < QTY) {
+        return res
+          .status(400)
+          .json({ message: `Insufficient stock for item ${LORY_CD}!` });
+      }
+      console.log("5");
+
+      // Deduct quantity from available stock
+      item.BALQTY -= QTY;
+      await item.save({ session });
+      itemUpdates.push(item);
+
+      // Create new order item
+      const newOrderItem = new Order({
+        orderId,
+        LORY_CD,
+        QTY,
+        ...rest,
+      });
+      console.log("6");
+
+      // Validate the new order item
+      const errors = newOrderItem.validateSync();
+      if (errors) {
+        return res
+          .status(400)
+          .json({ message: "Invalid data in one or more items", errors });
+      }
+      console.log(newOrderItem, "newOrderItem");
+
+      await newOrderItem.save({ session });
+      orderItemsToSave.push(newOrderItem);
+    }
+    console.log("7");
+
+    // Commit the transaction
+    await session.commitTransaction();
+    session.endSession();
+    console.log("Transaction committed successfully.");
+
+    res.status(201).json({ message: "Items added successfully" });
+  } catch (err) {
+    console.error(err);
+    await session.abortTransaction();
+    session.endSession();
+    res.status(500).json({ message: "Server error" });
   }
 };
 

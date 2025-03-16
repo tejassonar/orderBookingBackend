@@ -13,6 +13,10 @@ const userSchema = mongoose.Schema(
     PHONE_NUMBER: String,
     ADMIN: { type: Boolean, default: false },
     BROKER: { type: Boolean, default: false },
+    SETTINGS: {
+      type: Object,
+      default: { orderEditable: false },
+    },
     AGENCY: { type: Boolean, default: false },
     AGENT_CD: { type: String, index: true },
     COMP_CD: { type: String, index: true, required: true },

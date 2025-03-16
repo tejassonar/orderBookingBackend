@@ -2,25 +2,28 @@ import Bill from "../models/bills.model.js";
 import Payment from "../models/payments.model.js";
 
 export const createPayment = async (req, res) => {
-  // try {
-  const error = [];
-  console.log(req.body.bills, "req.body.bills");
-  for await (const singleBill of req.body.bills) {
-    const bill = await Bill.findOne({
-      DOC_NO: singleBill.DOC_NO,
-      COMP_CD: req.user.COMP_CD,
-      CLIENT_CD: req.user.CLIENT_CD,
-    });
-    if (bill && bill.PND_AMT >= Number(singleBill.RCV_AMT)) {
+  try {
+    const error = [];
+    console.log(req.body.bills, "req.body.bills");
+    for await (const singleBill of req.body.bills) {
+      const bill = await Bill.findOne({
+        DOC_NO: singleBill.DOC_NO,
+        COMP_CD: req.user.COMP_CD,
+        CLIENT_CD: req.user.CLIENT_CD,
+      });
+      // if (bill && bill.PND_AMT >= Number(singleBill.RCV_AMT)) {
       bill.PND_AMT -= Number(singleBill.RCV_AMT);
       singleBill.PND_AMT -= Number(singleBill.RCV_AMT);
       await bill.save();
-    } else {
-      error.push(singleBill);
+      // } else {
+      //   error.push(singleBill);
+      // }
     }
+    const payment = await Payment.insertMany(req.body.bills);
+    res.status(200).json(payment);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
-  const payment = await Payment.insertMany(req.body.bills);
-  res.status(200).json(payment);
 };
 
 export const getPayments = async (req, res) => {
@@ -28,6 +31,8 @@ export const getPayments = async (req, res) => {
     const dateObj = req.query.date ? new Date(req.query.date) : new Date();
     let fromDate;
     let toDate;
+
+    // Create start of day timestamp for the specified date
     const paymentDate = new Date(
       Date.UTC(
         dateObj.getFullYear(),
@@ -39,11 +44,25 @@ export const getPayments = async (req, res) => {
       )
     );
 
+    // Create end of day timestamp for the specified date
+    const endOfDay = new Date(
+      Date.UTC(
+        dateObj.getFullYear(),
+        dateObj.getMonth(),
+        dateObj.getDate() + 1,
+        0,
+        0,
+        0
+      )
+    );
+    endOfDay.setMilliseconds(-1);
+
+    // Handle from/to date range if provided (keeping original functionality)
     if (req.query.from && req.query.to) {
       const from = new Date(req.query.from);
       const to = new Date(req.query.to);
       if (from > to) {
-        res
+        return res
           .status(400)
           .json({ message: "To Date should be greater than From Date" });
       }
@@ -55,21 +74,28 @@ export const getPayments = async (req, res) => {
       );
     }
 
+    // Build base query with company and client codes
     let findQuery = {
       COMP_CD: req.user.COMP_CD,
       CLIENT_CD: req.user.CLIENT_CD,
     };
+
+    // Add agent code if exists
     if (req?.user?.AGENT_CD) {
       findQuery = { ...findQuery, AGENT_CD: req.user.AGENT_CD };
     }
 
+    // Add payment method filter if specified
     if (req.query?.payment_method) {
       findQuery = { ...findQuery, PAYMENT_TYPE: req.query.payment_method };
     }
+
+    // Add party code filter if specified
     if (req.query?.partyCode) {
       findQuery = { ...findQuery, PARTY_CD: req.query.partyCode };
     }
 
+    // Create the date query - either a date range or a single day
     const billDateQuery = {
       BILL_DT:
         fromDate && toDate
@@ -81,15 +107,12 @@ export const getPayments = async (req, res) => {
     };
 
     console.log(findQuery, "findQuery", billDateQuery, req.query?.date);
+
     const allPayments = await Payment.aggregate([
       {
         $match: {
           ...findQuery,
           ...billDateQuery,
-          // BILL_DT: {
-          //   $eq: paymentDate,
-          //   // $lt: new Date(orderDate.setDate(orderDate.getDate() + 1)),
-          // },
         },
       },
       {
@@ -163,6 +186,7 @@ export const getPayments = async (req, res) => {
         },
       },
     ]);
+
     res.status(200).json(allPayments);
   } catch (error) {
     console.log(error, "Errrror");
@@ -172,6 +196,7 @@ export const getPayments = async (req, res) => {
 
 export const getPaymentsCSV = async (req, res) => {
   try {
+    // Get the date from query parameter or use current date as default
     const dateObj = req.query.date ? new Date(req.query.date) : new Date();
     const paymentDate = new Date(
       Date.UTC(
@@ -183,25 +208,64 @@ export const getPaymentsCSV = async (req, res) => {
         0
       )
     );
+
+    // Get start and end dates from query parameters if provided
+    const startDate = req.query.startDate
+      ? new Date(req.query.startDate)
+      : null;
+    const endDate = req.query.endDate ? new Date(req.query.endDate) : null;
+
+    // Build the base query
     let findQuery = {
       COMP_CD: req.query.COMP_CD,
       CLIENT_CD: req.query.CLIENT_CD,
     };
+
+    // Add agent code if provided
     if (req?.query?.AGENT_CD) {
       findQuery = { ...findQuery, AGENT_CD: req.query.AGENT_CD };
     }
-    const allPayments = await Payment.find({
-      ...findQuery,
-      BILL_DT: {
+
+    // Build the date filter based on provided parameters
+    let dateFilter = {};
+
+    if (startDate && endDate) {
+      // If both start and end dates are provided
+      dateFilter = {
+        $gte: startDate,
+        $lte: endDate,
+      };
+    } else if (startDate) {
+      // If only start date is provided
+      dateFilter = {
+        $gte: startDate,
+      };
+    } else if (endDate) {
+      // If only end date is provided
+      dateFilter = {
+        $lte: endDate,
+      };
+    } else {
+      // If neither start nor end date is provided, use the original date filter
+      dateFilter = {
         $eq: paymentDate,
-        // $lt: new Date(orderDate.setDate(orderDate.getDate() + 1)),
-      },
-    });
+      };
+    }
+
+    // Add the date filter to the query
+    findQuery.BILL_DT = dateFilter;
+
+    console.log(findQuery, "findQuery");
+
+    // Find payments with the constructed query
+    const allPayments = await Payment.find(findQuery);
     const payments = JSON.parse(JSON.stringify(allPayments));
+
     if (payments.length == 0) {
       res.status(200);
-      res.json({ message: "No Payments Found" });
+      return res.json({ message: "No Payments Found" });
     }
+
     const replacer = (key, value) => (value === null ? "" : value); // specify how you want to handle null values here
     const header = Object.keys(payments[0]);
     const csv = [
@@ -219,5 +283,6 @@ export const getPaymentsCSV = async (req, res) => {
   } catch (err) {
     console.log(err, "Error==");
     res.status(400);
+    return res.json({ message: "Error generating CSV" });
   }
 };
