@@ -11,6 +11,7 @@ import bodyParser from "body-parser";
 import { notFound, errorHandler } from "./app/middleware/errorHandler.js";
 import fs from "fs";
 import path from "path";
+import User from "./app/models/user.model.js";
 
 dotenv.config();
 const port = process.env.PORT || 5000;

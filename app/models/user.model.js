@@ -14,8 +14,10 @@ const userSchema = mongoose.Schema(
     ADMIN: { type: Boolean, default: false },
     BROKER: { type: Boolean, default: false },
     SETTINGS: {
-      type: Object,
-      default: { orderEditable: false },
+      orderEditable: {
+        type: Boolean,
+        default: false,
+      },
     },
     AGENCY: { type: Boolean, default: false },
     AGENT_CD: { type: String, index: true },
